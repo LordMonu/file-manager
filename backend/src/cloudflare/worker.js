@@ -1,6 +1,3 @@
-import { buildOpenApiDocument } from '../services/openapi.service.js';
-import { env } from '../config/env.js';
-import { getRuntimeSystemInfo } from '../services/runtime.service.js';
 import { createId } from '../utils/ids.js';
 import { hashPassword, verifyPassword } from '../utils/password.js';
 import { signJwt, verifyJwt } from '../utils/jwt.js';
@@ -120,7 +117,7 @@ export default {
     }
 
     if (url.pathname === '/openapi.json') {
-      return withCors(json(buildOpenApiDocument()), request);
+      return withCors(json(buildOpenApiDocument(url.origin)), request);
     }
 
     if (url.pathname === '/docs') {
@@ -685,7 +682,7 @@ function parseAuthUser(request) {
   if (!token) return null;
 
   try {
-    const payload = verifyJwt(token, env.JWT_SECRET || 'free-worker-secret');
+    const payload = verifyJwt(token, getRuntimeEnv().JWT_SECRET || 'free-worker-secret');
     const user = freeStore.users.get(payload.sub);
     if (!user) return null;
     const memberships = freeStore.memberships.get(user.id) || [];
@@ -748,7 +745,7 @@ function corsPreflight(request) {
 
 function getAllowedOrigin(origin) {
   if (!origin) return '';
-  const allowed = String(env.CORS_ORIGIN || '')
+  const allowed = String(getRuntimeEnv().CORS_ORIGIN || '')
     .split(',')
     .map((item) => item.trim())
     .filter(Boolean);
@@ -789,4 +786,42 @@ function detectFolder(mimeType, fileName) {
   const ext = String(fileName || '').toLowerCase().split('.').pop();
   if (ext === 'pdf') return 'pdfs';
   return 'docs';
+}
+
+function getRuntimeEnv() {
+  return globalThis.__ENV__ || {};
+}
+
+function getRuntimeSystemInfo() {
+  const env = getRuntimeEnv();
+  return {
+    authMode: env.AUTH_MODE || 'jwt',
+    storageDriver: env.STORAGE_DRIVER || 'mock',
+    databaseMode: 'memory',
+    maxUploadSizeMb: Number(env.MAX_UPLOAD_SIZE_MB) || 200,
+    folders: ['images', 'videos', 'pdfs', 'docs'],
+  };
+}
+
+function buildOpenApiDocument(serverUrl) {
+  return {
+    openapi: '3.1.0',
+    info: {
+      title: 'Manage Files API',
+      version: '1.0.0',
+      description: 'Free deployment Worker API for client creation, upload URL generation, folder browsing, protected file access, and audit logging.',
+    },
+    servers: [{ url: serverUrl, description: 'Worker base URL' }],
+    paths: {
+      '/api/v1/health': { get: { summary: 'Health check' } },
+      '/api/v1/auth/bootstrap': { post: { summary: 'Create initial admin user' } },
+      '/api/v1/auth/login': { post: { summary: 'Log in a user' } },
+      '/api/v1/clients': { get: { summary: 'List clients' }, post: { summary: 'Create client' } },
+      '/api/v1/folders': { get: { summary: 'List folders' } },
+      '/api/v1/files': { get: { summary: 'List files' } },
+      '/api/v1/uploads/generate-upload-url': { post: { summary: 'Generate upload URL' } },
+      '/api/v1/uploads/{fileId}/confirm': { post: { summary: 'Confirm upload' } },
+      '/api/v1/files/{fileId}/content': { get: { summary: 'Fetch file content' } },
+    },
+  };
 }

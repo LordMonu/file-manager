@@ -1,5 +1,5 @@
 name = "file-manager"
-main = "src/cloudflare/worker.js"
+main = "backend/src/cloudflare/worker.js"
 compatibility_date = "2026-06-18"
 compatibility_flags = ["nodejs_compat"]
 
