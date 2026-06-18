@@ -1,0 +1,29 @@
+{
+  "name": "manage-files-backend",
+  "private": true,
+  "version": "0.0.0",
+  "main": "src/server.js",
+  "type": "module",
+  "scripts": {
+    "dev": "node --watch src/server.js",
+    "start": "node src/server.js",
+    "db:migrate": "node src/database/migrate.js",
+    "test:smoke:core": "NODE_ENV=test STORAGE_DRIVER=mock DATABASE_URL= BACKEND_PUBLIC_URL=http://127.0.0.1 node src/scripts/smoke-test.js",
+    "test:smoke:auth": "NODE_ENV=test AUTH_MODE=jwt JWT_SECRET=smoke-jwt-secret STORAGE_DRIVER=mock DATABASE_URL= BACKEND_PUBLIC_URL=http://127.0.0.1 node src/scripts/auth-smoke-test.js",
+    "test:smoke": "npm run test:smoke:core && npm run test:smoke:auth"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "@aws-sdk/client-s3": "^3.658.1",
+    "@aws-sdk/s3-request-presigner": "^3.658.1",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.21.0",
+    "helmet": "^8.0.0",
+    "morgan": "^1.10.0",
+    "pg": "^8.21.0",
+    "zod": "^3.23.8"
+  }
+}

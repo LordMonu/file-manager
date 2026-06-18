@@ -1,0 +1,9 @@
+name = "manage-files-backend"
+main = "src/cloudflare/worker.js"
+compatibility_date = "2026-06-18"
+
+[vars]
+NODE_ENV = "production"
+AUTH_MODE = "jwt"
+JWT_EXPIRES_SECONDS = "3600"
+
