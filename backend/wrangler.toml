@@ -7,3 +7,4 @@ compatibility_flags = ["nodejs_compat"]
 NODE_ENV = "production"
 AUTH_MODE = "jwt"
 JWT_EXPIRES_SECONDS = "3600"
+CORS_ORIGIN = "http://localhost:5173,https://file-manager-frontend-lovat.vercel.app,https://file-manager-frontend-8wqea7wem-rishabh-s-project.vercel.app"
